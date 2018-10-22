@@ -61,6 +61,7 @@ private:
     
 public:
     static U evaluate(Vector<dim,T>& result,const std::vector<Vector<dim,T>>& startVecs,const std::function<U(const Vector<dim,T>&)>& func,size_t iterationCount,U tolerance);
+    static U evaluate(T* const result,const T* const startVecs,const std::function<U(const T const*)>& func,size_t iterationCount,U tolerance);
 };
 
 
