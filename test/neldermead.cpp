@@ -1,6 +1,6 @@
 #include "gtest.h"
 #include "../src/neldermead/neldermead.h"
-
+using namespace gnms;
 
 TEST(NelderMead,Vector){
     Vector<2,float> v1;
