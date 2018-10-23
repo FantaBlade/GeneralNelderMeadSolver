@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <functional>
 #include <vector>
+//#include <iostream>
 namespace gnms {
 	//通用向量
 	template<size_t dim, typename T>
@@ -78,6 +79,15 @@ namespace gnms {
             return (*this);
         }
         
+        friend std::ostream& operator <<(std::ostream& out,const Vector& v){
+            out<<"[";
+            for (auto& n : v._data)
+			{
+				 out<<n<<" ";
+			}
+            out<<"]";
+            return out;
+        }
 	};
 
 	//常用基本类型
@@ -98,13 +108,13 @@ namespace gnms {
 	private:
 
 	public:
-		static U evaluate(Vector<dim, T>& result, const std::vector<Vector<dim, T>>& startVecs, const std::function<U(const Vector<dim, T>&)>& func, size_t iterationCount, U tolerance,U reflect);
+		static U evaluate(Vector<dim, T>& result, const std::vector<Vector<dim, T>>& startVecs, const std::function<U(const Vector<dim, T>&)>& func, size_t iterationCount, U tolerance,float reflect=1,float expand=2,float contract=0.5f,float shrink=0.5f);
 		static U evaluate(T* const result, const T* const startVecs, const std::function<U(const T const*)>& func, size_t iterationCount, U tolerance);
 	};
 
 
 	template<size_t dim, typename T, typename U>
-	U NelderMeadSolver<dim, T, U>::evaluate(Vector<dim, T>& result, const std::vector<Vector<dim, T>>& startVecs, const std::function<U(const Vector<dim, T>&)>& func, size_t iterationCount, U tolerance,U reflect) {
+	U NelderMeadSolver<dim, T, U>::evaluate(Vector<dim, T>& result, const std::vector<Vector<dim, T>>& startVecs, const std::function<U(const Vector<dim, T>&)>& func, size_t iterationCount, U tolerance,float reflect,float expand,float contract,float shrink) {
 		assert(startVecs.size() == (dim + 1));
         //复制一份向量拷贝
         auto vectors= std::vector<Vector<dim, T>>(startVecs);
@@ -123,24 +133,24 @@ namespace gnms {
 		for (size_t i = 0; i < iterationCount; ++i) {
             //计算当前的最大值，最小值以及次最大值
             for(int j=0;j<VecNum;++j){
-                if(funcValues[i]<funcValues[low]){
-                    low=i;
+                if(funcValues[j]<funcValues[low]){
+                    low=j;
                 }
-                else if(funcValues[i]>funcValues[high]){
+                else if(funcValues[j]>funcValues[high]){
                     subHigh=high;
-                    high=i;
+                    high=j;
                 }
-                else if(funcValues[i]>funcValues[subHigh]){
-                    subHigh=i;
+                else if(funcValues[j]>funcValues[subHigh]){
+                    subHigh=j;
                 }
             }
             //计算阈值
             //这里使用abs的原因是U可能是int类型之类的整形
             U a=std::abs(funcValues[low]);
             U b=std::abs(funcValues[high]);
-            if(2*std::abs(a-b)<tolerance*(a+b)){
-                break;
-            }
+            // if(2*std::abs(a-b)<tolerance*(a+b)){
+            //     break;
+            // }
             //计算除了最大向量外，其他向量的中心向量
             Vector<dim, T> o(0);
             for(int j=0;j<VecNum;++j){
@@ -153,7 +163,44 @@ namespace gnms {
             o/=dim;
 
             //反射 reflection
-           Vector<dim, T> r= reflect*(o-vectors[high]);
+           auto r=o+reflect*(o-vectors[high]);
+           U r_fv=func(r);
+
+           if(r_fv<funcValues[subHigh]){
+               if(r_fv<funcValues[low]){
+                   //扩张 expansion
+                    auto e=o+expand*(r-o);
+                    U e_fv=func(e);
+                    if(e_fv<r_fv){
+                        funcValues[high]=e_fv;
+                        vectors[high]=e;
+                        continue;
+                    }
+                   
+               }
+                //反射(这里包括了(r_fv<funcValues[low])以及(r_fv>funcValues[low])两种情况
+                funcValues[high]=r_fv;
+                vectors[high]=r;
+                continue;
+           }
+           //r_fv>funcValues[subHigh]
+           //收缩
+           auto c=o+contract*(vectors[high]-o);
+           U c_fv=func(c);
+           if(c_fv< funcValues[high]){
+                funcValues[high]=c_fv;
+                vectors[high]=c;
+                continue;
+           }
+
+           //shrink
+           for(int j=0;j<VecNum;++j){
+               if(j==low){
+                   continue;
+               }
+               vectors[j]=o+shrink*(vectors[j]-o);
+               funcValues[j]=func(vectors[j]);
+           }
 		}
 
         result=vectors[low];
