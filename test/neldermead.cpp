@@ -1,5 +1,6 @@
 #include "gtest.h"
 #include "../src/neldermead/neldermead.h"
+
 using namespace gnms;
 
 TEST(NelderMead,Vector){
@@ -32,7 +33,7 @@ TEST(NelderMead,Vector){
 }
 
 TEST(NelderMead,Solver){
-    Vector<1,float> v1(-20);
+    Vector<1,float> v1(40);
     Vector<1,float> v2(20);
     
     Vector<1,float> ret;
@@ -42,6 +43,13 @@ TEST(NelderMead,Solver){
     startVecs.push_back(v2);
 
    // NelderMeadSolver<2,float,float> sovler;
+    //2D抛物线 y=x^2
     float r= NelderMeadSolver<1, float, float>::evaluate(ret,startVecs,[&](const Vector<1,float>& n)->float{return n[0]*n[0];},500,0.001f);
-    EXPECT_EQ(r,10);
+    EXPECT_EQ(r,0);
+    //指数函数 y=e^x
+    float r2=NelderMeadSolver<1, float, float>::evaluate(ret,startVecs,[&](const Vector<1,float>& n)->float{return std::exp(n[0]);},500,0.001f);
+    EXPECT_EQ(r2,0);
+    //对数函数y=log_2(x)
+    float r3=NelderMeadSolver<1, float, float>::evaluate(ret,startVecs,[&](const Vector<1,float>& n)->float{return std::log(n[0]);},500,0.001f);
+	EXPECT_EQ(r3, -std::numeric_limits<float>::infinity());
 }
