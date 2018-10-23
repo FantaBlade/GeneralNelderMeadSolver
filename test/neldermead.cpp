@@ -49,7 +49,7 @@ TEST(NelderMead,Solver){
     //指数函数 y=e^x
     float r2=NelderMeadSolver<1, float, float>::evaluate(ret,startVecs,[&](const Vector<1,float>& n)->float{return std::exp(n[0]);},500,0.001f);
     EXPECT_EQ(r2,0);
-    //对数函数y=log_2(x)
+    //对数函数y=log_e(x)
     float r3=NelderMeadSolver<1, float, float>::evaluate(ret,startVecs,[&](const Vector<1,float>& n)->float{return std::log(n[0]);},500,0.001f);
 	EXPECT_EQ(r3, -std::numeric_limits<float>::infinity());
 }
