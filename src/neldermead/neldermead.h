@@ -109,7 +109,7 @@ namespace gnms {
 
 	public:
 		static U evaluate(Vector<dim, T>& result, const std::vector<Vector<dim, T>>& startVecs, const std::function<U(const Vector<dim, T>&)>& func, size_t iterationCount, U tolerance,float reflect=1,float expand=2,float contract=0.5f,float shrink=0.5f);
-		static U evaluate(T* const result, const T* const startVecs, const std::function<U(const T const*)>& func, size_t iterationCount, U tolerance);
+		//static U evaluate(T* const result, const T* const startVecs, const std::function<U(const T const*)>& func, size_t iterationCount, U tolerance);
 	};
 
 
