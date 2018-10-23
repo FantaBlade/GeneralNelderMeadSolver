@@ -16,6 +16,11 @@ TEST(NelderMead,Vector){
 
     Vector<2,float> v3(v2);
      EXPECT_EQ(v3[0],2);
+
+    v3/=2;
+    EXPECT_EQ(v3[0],1);
+    v3+=v2;
+     EXPECT_EQ(v3[0],3);
 }
 
 TEST(NelderMead,Solver){
