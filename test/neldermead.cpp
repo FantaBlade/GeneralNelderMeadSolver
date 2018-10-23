@@ -20,7 +20,13 @@ TEST(NelderMead,Vector){
     v3/=2;
     EXPECT_EQ(v3[0],1);
     v3+=v2;
-     EXPECT_EQ(v3[0],3);
+    EXPECT_EQ(v3[0],3);
+
+    auto v4=v3-v2;
+    EXPECT_EQ(v4[0],1);
+
+    v4=v4*4;
+    EXPECT_EQ(v4[0],4);
 }
 
 TEST(NelderMead,Solver){
@@ -35,6 +41,6 @@ TEST(NelderMead,Solver){
     startVecs.push_back(v3);
 
    // NelderMeadSolver<2,float,float> sovler;
-    float r= NelderMeadSolver<2, float, float>::evaluate(ret,startVecs,[&](const Vector<2,float>& n)->float{return n[0]+n[1];},1,0.001f);
+    float r= NelderMeadSolver<2, float, float>::evaluate(ret,startVecs,[&](const Vector<2,float>& n)->float{return n[0]+n[1];},1,0.001f,1);
     EXPECT_EQ(r,10);
 }

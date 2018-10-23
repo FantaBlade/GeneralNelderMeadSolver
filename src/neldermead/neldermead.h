@@ -22,7 +22,7 @@ namespace gnms {
 			memcpy(_data, data + start, dim * sizeof(T));
 		}
 
-		explicit Vector(const Vector& v) {
+		Vector(const Vector& v) {
 			memcpy(_data, v._data, dim * sizeof(T));
 		}
 
@@ -40,12 +40,35 @@ namespace gnms {
 			assert(index >= 0 && index < dim);
 			return _data[index];
 		}
-
+        friend Vector operator+(const Vector& v1,const Vector& v2){
+            Vector v;
+             for(int i=0;i<dim;++i){
+                v._data[i]=v1._data[i]+v2._data[i];
+            }
+            return v;
+        }
         Vector& operator+=(const Vector& v){
             for(int i=0;i<dim;++i){
                 _data[i]+=v._data[i];
             }
             return (*this);
+        }
+        friend Vector operator-(const Vector& v1,const Vector& v2){
+            Vector v;
+             for(int i=0;i<dim;++i){
+                v._data[i]=v1._data[i]-v2._data[i];
+            }
+            return v;
+        }
+        friend Vector operator*(const Vector& v1,T f){
+            Vector v;
+             for(int i=0;i<dim;++i){
+                v._data[i]=v1._data[i]*f;
+            }
+            return v;
+        }
+        friend Vector operator*(T f,const Vector& v1){
+            return v1*f;
         }
 
         Vector& operator/=(T f){
@@ -75,13 +98,13 @@ namespace gnms {
 	private:
 
 	public:
-		static U evaluate(Vector<dim, T>& result, const std::vector<Vector<dim, T>>& startVecs, const std::function<U(const Vector<dim, T>&)>& func, size_t iterationCount, U tolerance);
+		static U evaluate(Vector<dim, T>& result, const std::vector<Vector<dim, T>>& startVecs, const std::function<U(const Vector<dim, T>&)>& func, size_t iterationCount, U tolerance,U reflect);
 		static U evaluate(T* const result, const T* const startVecs, const std::function<U(const T const*)>& func, size_t iterationCount, U tolerance);
 	};
 
 
 	template<size_t dim, typename T, typename U>
-	U NelderMeadSolver<dim, T, U>::evaluate(Vector<dim, T>& result, const std::vector<Vector<dim, T>>& startVecs, const std::function<U(const Vector<dim, T>&)>& func, size_t iterationCount, U tolerance) {
+	U NelderMeadSolver<dim, T, U>::evaluate(Vector<dim, T>& result, const std::vector<Vector<dim, T>>& startVecs, const std::function<U(const Vector<dim, T>&)>& func, size_t iterationCount, U tolerance,U reflect) {
 		assert(startVecs.size() == (dim + 1));
         //复制一份向量拷贝
         auto vectors= std::vector<Vector<dim, T>>(startVecs);
@@ -128,6 +151,9 @@ namespace gnms {
                 o+=vectors[j];
             }
             o/=dim;
+
+            //反射 reflection
+           Vector<dim, T> r= reflect*(o-vectors[high]);
 		}
 
         result=vectors[low];
