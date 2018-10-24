@@ -52,4 +52,24 @@ TEST(NelderMead,Solver){
     //对数函数y=log_e(x)
     float r3=NelderMeadSolver<1, float, float>::evaluate(ret,startVecs,[&](const Vector<1,float>& n)->float{return std::log(n[0]);},500,0.001f);
 	EXPECT_EQ(r3, -std::numeric_limits<float>::infinity());
+
+}
+
+
+TEST(NelderMead, NativeSolver) {
+	float v1 = 40;
+	float v2 = 20;
+
+	float ret;
+
+	float inits[] = { v1,v2 };
+	//2D抛物线 y=x^2
+	float r = NelderMeadSolver<1,float, float>::evaluate(&ret,inits,[&](const float *n)->float{return n[0] * n[0]; },500,0.001f);
+	EXPECT_EQ(r, 0);
+	//指数函数 y=e^x
+	float r2 = NelderMeadSolver<1, float, float>::evaluate(&ret, inits, [&](const float *n)->float {return std::exp(n[0]); }, 500, 0.001f);
+	EXPECT_EQ(r2, 0);
+	//对数函数y=log_e(x)
+	float r3 = NelderMeadSolver<1, float, float>::evaluate(&ret, inits, [&](const float *n)->float {return std::log(n[0]); }, 500, 0.001f);
+	EXPECT_EQ(r3, -std::numeric_limits<float>::infinity());
 }

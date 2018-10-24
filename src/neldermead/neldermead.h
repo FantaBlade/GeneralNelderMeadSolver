@@ -19,7 +19,7 @@ namespace gnms {
 			}
 		}
 
-		explicit Vector(T* data, size_t start) {
+		explicit Vector(const T* data, size_t start) {
 			memcpy(_data, data + start, dim * sizeof(T));
 		}
 
@@ -93,7 +93,7 @@ namespace gnms {
             return _data;
         } 
 
-        void copy(T const*ptr) const{
+        void copy(T *ptr) const{
             std::memcpy(ptr,_data,dim*sizeof(T));
         }
 	};
@@ -117,7 +117,7 @@ namespace gnms {
 
 	public:
 		static U evaluate(Vector<dim, T>& result, const std::vector<Vector<dim, T>>& startVecs, const std::function<U(const Vector<dim, T>&)>& func, size_t iterationCount, U tolerance,float reflect=1,float expand=2,float contract=0.5f,float shrink=0.5f);
-		static U evaluate(T* const result, const T* const startVecs, const std::function<U(const T const*)>& func, size_t iterationCount, U tolerance,float reflect=1,float expand=2,float contract=0.5f,float shrink=0.5f);
+		static U evaluate(T*  result, const T*  startVecs, const std::function<U(const T *)>& func, size_t iterationCount, U tolerance,float reflect=1,float expand=2,float contract=0.5f,float shrink=0.5f);
 	};
 
 
@@ -216,13 +216,14 @@ namespace gnms {
 	}
 
     template<size_t dim, typename T, typename U>
-    U NelderMeadSolver<dim, T, U>::evaluate(T* const result, const T* const startVecs, const std::function<U(const T const*)>& func, size_t iterationCount, U tolerance,float reflect=1,float expand=2,float contract=0.5f,float shrink=0.5f){
+    U NelderMeadSolver<dim, T, U>::evaluate(T*  result, const T*  startVecs, const std::function<U(const T *)>& func, size_t iterationCount, U tolerance,float reflect=1,float expand=2,float contract=0.5f,float shrink=0.5f){
         Vector<dim, T> r;
         std::vector< Vector<dim, T> > s;
         for(int i=0;i<dim+1;++i){
-            s.push_back(startVecs,i*dim);
+			Vector<dim, T>  v(startVecs, i*dim);
+            s.push_back(v);
         }
-        U rr=evaluate(r,s,[&](const Vector<dim, T>& a)=>U{func(a.c_ptr())},iterationCount,tolerance,reflect,expand,contract,shrink);
+		U rr = evaluate(r, s, [&](const Vector<dim, T>& a) -> U{ return func(a.c_ptr()); }, iterationCount, tolerance, reflect, expand, contract, shrink);
         r.copy(result);
         return rr;
     }
