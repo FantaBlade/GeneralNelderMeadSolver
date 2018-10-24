@@ -32,7 +32,7 @@ TEST(NelderMead,Vector){
     //std::cout<<v4<<std::endl;
 }
 
-TEST(NelderMead,Solver){
+TEST(NelderMead,1D_Function){
     Vector<1,float> v1(40);
     Vector<1,float> v2(20);
     
@@ -56,7 +56,7 @@ TEST(NelderMead,Solver){
 }
 
 
-TEST(NelderMead, NativeSolver) {
+TEST(NelderMead, 1D_Function_Native) {
 	float v1 = 40;
 	float v2 = 20;
 
@@ -72,4 +72,22 @@ TEST(NelderMead, NativeSolver) {
 	//对数函数y=log_e(x)
 	float r3 = NelderMeadSolver<1, float, float>::evaluate(&ret, inits, [&](const float *n)->float {return std::log(n[0]); }, 500, 0.001f);
 	EXPECT_EQ(r3, -std::numeric_limits<float>::infinity());
+}
+
+TEST(NelderMead, 2D_Function) {
+	/*float v1[2] = {40,40};
+	float v2[2] = { -40,80 };
+	float v3[2] = { 2,-30 };*/
+	float ret[2];
+	float inits[6] = { 40,40/*v1*/,-40,80/*v2*/, 2,-30/*v3*/ };
+	//3D抛物体 z=x^2+y^2
+	float r = NelderMeadSolver<2, float, float>::evaluate(ret, inits, [&](const float *n)->float {return n[0] * n[0]+ n[1] * n[1]; }, 500, 0.001f);
+	EXPECT_EQ(r, 0);
+	//3D指数函数 y=e^(x+y）
+	float r2 = NelderMeadSolver<2, float, float>::evaluate(ret, inits, [&](const float *n)->float {return std::exp(n[0] + n[1]); }, 500, 0.001f);
+	EXPECT_EQ(r2, 0);
+	//3D对数函数y=log_e(x+y)
+	float r3 = NelderMeadSolver<2, float, float>::evaluate(ret, inits, [&](const float *n)->float {return std::log(n[0] + n[1]); }, 500, 0.001f);
+	EXPECT_EQ(r3, -std::numeric_limits<float>::infinity());
+
 }
